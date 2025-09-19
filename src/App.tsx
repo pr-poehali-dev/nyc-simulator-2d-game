@@ -3,26 +3,47 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { useState } from "react";
+import GameMenu from "./components/GameMenu";
+import GameMap from "./components/GameMap";
+import PlayerProfile from "./components/PlayerProfile";
+import GameSettings from "./components/GameSettings";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [currentSection, setCurrentSection] = useState<string>('menu');
+
+  const handleNavigate = (section: string) => {
+    setCurrentSection(section);
+  };
+
+  const handleBack = () => {
+    setCurrentSection('menu');
+  };
+
+  const renderCurrentSection = () => {
+    switch (currentSection) {
+      case 'game':
+        return <GameMap onBack={handleBack} />;
+      case 'profile':
+        return <PlayerProfile onBack={handleBack} />;
+      case 'settings':
+        return <GameSettings onBack={handleBack} />;
+      default:
+        return <GameMenu onNavigate={handleNavigate} />;
+    }
+  };
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        {renderCurrentSection()}
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
